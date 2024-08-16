@@ -1,13 +1,51 @@
 import React from 'react';
 import Head from 'next/head';
+import LeetcodeProfile from '@/components/LeetcodeProfile';
 
-const Work = () => {
+export async function getServerSideProps() {
+  const query = `
+  {
+    matchedUser(username: "harishkumarsp023") {
+      username
+      submitStats: submitStatsGlobal {
+        acSubmissionNum {
+          difficulty
+          count
+          submissions
+        }
+      }
+    }
+  }`;
+
+  const url = 'https://leetcode.com/graphql';
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ query }),
+  });
+
+  const data = await response.json();
+
+  return {
+    props: {
+      userData: data.data?.matchedUser || null,
+    },
+  };
+}
+
+const Work = ({ userData }) => {
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-10">
+    <div className="max-h-screen bg-gray-900 text-white py-10 overflow-y-scroll">
       <Head>
         <title>Harish Kumar Narasimhan - Work Experience</title>
       </Head>
       <div className="max-w-5xl mx-auto px-4">
+        <h1 className="text-5xl font-extrabold text-center mb-12 text-red-500">Leetcode Problem solved</h1>
+          {/* Include the LeetcodeProfile component here */}
+          <LeetcodeProfile userData={userData} />
         <h1 className="text-5xl font-extrabold text-center mb-12 text-red-500">Project Highlights</h1>
         <div className="space-y-8">
           <div className="bg-gray-800 p-8 rounded-lg shadow-lg hover:shadow-red-500 transition-shadow duration-300">
@@ -32,6 +70,9 @@ const Work = () => {
             </div>
           </div>
         </div>
+
+      
+
       </div>
     </div>
   );
